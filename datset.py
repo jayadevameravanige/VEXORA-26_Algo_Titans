@@ -39,6 +39,10 @@ def generate_voter_id():
     numbers = ''.join(random.choices(string.digits, k=7))
     return f"{state_code}{letters}{numbers}"
 
+def calculate_age(birth_year):
+    """Calculate age from birth year"""
+    return datetime.now().year - birth_year
+
 def generate_dob(min_age=18, max_age=90):
     """Generate a date of birth within the specified age range"""
     today = datetime.now()
@@ -165,6 +169,7 @@ def generate_voter_record(is_ghost=False):
         'First_Name': first_name,
         'Last_Name': last_name,
         'DOB': dob,
+        'Age': calculate_age(birth_year),
         'Gender': generate_gender(),
         'Address': generate_address(),
         'Pincode': generate_pincode(),
@@ -243,7 +248,7 @@ def main():
     print(f"\n💾 Saving dataset to {output_file}...")
     
     fieldnames = [
-        'Voter_ID', 'First_Name', 'Last_Name', 'DOB', 'Gender', 
+        'Voter_ID', 'First_Name', 'Last_Name', 'DOB', 'Age', 'Gender', 
         'Address', 'Pincode', 'Registration_Year', 'Last_Voted_Year', 'Masked_Aadhaar'
     ]
     
