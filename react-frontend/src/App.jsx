@@ -230,13 +230,18 @@ function App() {
         method: 'POST',
         body: formData
       })
-      const data = await res.json()
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        throw new Error(`Invalid response from server (Status: ${res.status})`);
+      }
 
-      if (data.status === 'success') {
+      if (res.ok && data.status === 'success') {
         setMessage('File uploaded! Starting immediate analysis...')
         await runAnalysis(data.filepath)
       } else {
-        setMessage('Upload failed: ' + (data.message || data.error))
+        setMessage('Upload failed: ' + (data.message || data.error || `Server error ${res.status}`))
       }
     } catch (err) {
       setMessage('Security Server Connection Error: ' + err.message)
@@ -256,14 +261,23 @@ function App() {
       if (filePath) options.body = JSON.stringify({ data_path: filePath })
 
       const res = await fetch(`${API_BASE}/analyze`, options)
-      const data = await res.json()
 
-      if (data.status === 'success') {
+      let data;
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        if (!res.ok) {
+          throw new Error(`Server returned error ${res.status}: ${res.statusText}`);
+        }
+        throw new Error("Analysis completed but server returned an invalid response.");
+      }
+
+      if (res.ok && data.status === 'success') {
         setMessage('✅ Audit completed successfully!')
         await fetchStats()
         await fetchAllFlagged(true) // Force fresh fetch after update
       } else {
-        setMessage('Audit failed: ' + (data.message || data.error || 'Check server logs'))
+        setMessage('Audit failed: ' + (data.message || data.error || `Server error ${res.status}`))
       }
     } catch (err) {
       setMessage('Analysis error: ' + err.message)

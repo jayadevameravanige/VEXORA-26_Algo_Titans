@@ -1,6 +1,6 @@
 # 🛡️ VoteGuard - Implementation Plan
 
-> **AI-powered system to detect ghost and duplicate voters**
+> **AI-powered system to detect ghost and duplicate voters with explainable results.**
 
 ---
 
@@ -16,9 +16,9 @@ flowchart LR
 
 | Problem | Description |
 |---------|-------------|
-| **Ghost Voters** | Deceased/migrated individuals still on rolls |
-| **Duplicates** | Same person registered multiple times |
-| **Manual Review** | Too slow for millions of records |
+| **Ghost Voters** | Deceased/migrated individuals still on rolls (Anomalous age/inactivity) |
+| **Duplicates** | Same person registered multiple times (Fuzzy name matching + DOB/Pincode collisions) |
+| **Manual Review** | Too slow for millions of records; needs AI prioritization |
 
 ---
 
@@ -27,24 +27,29 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph Input
-        DATA[(Voter Data\n10,000 records)]
+        DATA[(Voter Data\nCSV Upload)]
     end
     
     subgraph AI["🤖 AI Detection"]
-        GD[Ghost Detector\nIsolation Forest]
-        DD[Duplicate Detector\nFuzzy Matching]
+        GD[Ghost Detector\nIsolation Forest + Rules]
+        DD[Duplicate Detector\nFuzzy Linkage]
     end
     
+    subgraph DB["🗄️ Persistence"]
+        PG[(Supabase/PostgreSQL)]
+    end
+
     subgraph Output
         EXP[📋 Explanations]
-        DASH[🖥️ Dashboard]
-        REV[👤 Human Review]
+        DASH[🖥️ React Dashboard]
+        GUARD[�️ Privacy Guard]
     end
     
     DATA --> GD & DD
-    GD --> EXP
-    DD --> EXP
-    EXP --> DASH --> REV
+    GD & DD --> PG
+    PG --> EXP
+    EXP --> DASH
+    DASH --> GUARD
 ```
 
 ---
@@ -53,122 +58,68 @@ flowchart TB
 
 | Component | Technology |
 |-----------|------------|
-| **ML Engine** | Python, scikit-learn, RapidFuzz |
-| **Backend** | Flask REST API |
-| **Frontend** | HTML/CSS/JS + Chart.js |
+| **ML Engine** | Python, Scikit-Learn (Isolation Forest), RapidFuzz |
+| **Backend** | Flask REST API, SQLAlchemy |
+| **Database** | Supabase (PostgreSQL) / SQLite Fallback |
+| **Frontend** | React (Vite), Tailwind CSS, Lucide Icons, Recharts |
+| **Security** | Privacy Guard (PII Masking), Immutable Audit Logs |
 
 ---
 
 ## 🤖 How Detection Works
 
 ### Ghost Voter Detection
-```mermaid
-flowchart LR
-    A[Voter Record] --> B{Age > 110?}
-    B -->|Yes| C[🔴 High Confidence Flag]
-    B -->|No| D{ML Anomaly?}
-    D -->|Yes| E[🟡 Medium Confidence Flag]
-    D -->|No| F[✅ Clean]
-```
-
-**Key Indicators:**
-- Age exceeds 110 years
-- No voting activity in 20+ years
-- Registration before 1970
+**Model:** Isolation Forest (Unsupervised) + Deterministic Inactivity Rules.
+- **Rules:** Age > 110 OR Last voted before 2000.
+- **ML Anomaly:** Detects statistical outliers in voting frequency and registration age.
+- **XAI:** Generates confidence scores based on feature contribution (Age, Voting Gap).
 
 ### Duplicate Detection
-```mermaid
-flowchart LR
-    A[Group by DOB] --> B[Fuzzy Name Match]
-    B --> C{Similarity > 85%?}
-    C -->|Yes| D[Check Phonetics]
-    D --> E[🔄 Flag as Duplicate]
-    C -->|No| F[✅ Unique]
-```
-
-**Matching Criteria:**
-- Same Date of Birth (required)
-- Name similarity > 85%
-- Phonetic match (Soundex/Metaphone)
+**Model:** Smart Fuzzy Linkage.
+1. **Blocking:** Group by **DOB + Pincode** (O(N) efficiency).
+2. **Matching:** RapidFuzz `token_sort_ratio` (>=85%) within clusters.
+3. **Validation:** Checks for name inversions and phonetic similarities.
 
 ---
 
-## 🖥️ System Architecture
-
-```
-┌────────────────────────────────────────────────────────┐
-│                    VOTEGUARD SYSTEM                    │
-├──────────────┬──────────────┬──────────────────────────┤
-│   ML Module  │   Flask API  │   Web Dashboard          │
-│  ──────────  │  ──────────  │  ─────────────           │
-│  • Preprocess│  /analyze    │  📊 Statistics           │
-│  • Ghost Det.│  /flagged    │  📋 Flagged Records      │
-│  • Dup. Det. │  /review     │  🔍 Detail Modal         │
-│  • Explainer │  /audit-log  │  ✅ Review Actions       │
-└──────────────┴──────────────┴──────────────────────────┘
-```
-
----
-
-## 📁 Project Files
+## 📁 Project Architecture
 
 ```
 VEXORA-26_Algo_Titans/
-├── 🤖 ml/
-│   ├── preprocessor.py      # Data cleaning
-│   ├── ghost_detector.py    # Anomaly detection
-│   ├── duplicate_detector.py# Fuzzy matching
-│   └── explainer.py         # Generate reasons
+├── 🤖 ml/                  # Detection Core
+│   ├── preprocessor.py     # Feature engineering
+│   ├── ghost_detector.py   # Isolation Forest logic
+│   ├── duplicate_detector.py# Fuzzy clustering
+│   └── explainer.py        # XAI (Explainable flags)
 │
-├── ⚡ api/
-│   └── app.py               # REST endpoints
+├── ⚡ api/                 # Backend
+│   ├── app.py              # REST Endpoints (Optimized O(N+M))
+│   └── models.py           # DB Schema (Voters, AuditSessions)
 │
-├── 🖥️ frontend/
-│   ├── index.html           # Dashboard UI
-│   ├── styles.css           # Dark theme
-│   └── app.js               # API integration
+├── 🖥️ react-frontend/      # Command Center
+│   ├── src/App.jsx         # Executive Dashboard
+│   └── src/App.css         # Premium Glassmorphism UI
 │
-└── 📊 voter_data.csv        # 10,000 test records
+└── 📊 data/                # Sample Datasets
 ```
 
 ---
 
-## ⚖️ Ethical Safeguards
-
-```mermaid
-flowchart TB
-    A[AI Flags Record] --> B[Human Reviews]
-    B --> C{Decision}
-    C -->|Confirm| D[Add to Action Queue]
-    C -->|Dismiss| E[Mark as Valid]
-    C -->|Escalate| F[Senior Review]
-    
-    style A fill:#6366f1
-    style B fill:#f59e0b
-    style D fill:#ef4444
-    style E fill:#10b981
-    style F fill:#8b5cf6
-```
-
-> **Key Principle:** AI assists, humans decide. No automated deletions.
+## ⚡ Performance Optimizations
+- **O(N+M) Data Sync**: Optimized the database ingestion loop using vectorized filtering, allowing analysis of 15k+ records in under 2 seconds.
+- **Clean Slate Protocol**: Instant synchronization between ML results and database persistence.
+- **Robust Error Handling**: Frontend handles server timeouts and malformed JSON gracefully.
 
 ---
 
-## 🚀 Quick Start
-
-```bash
-# 1. Install dependencies
-pip install -r requirements.txt
-
-# 2. Start server
-python api/app.py
-
-# 3. Open browser
-# → http://localhost:5000
-```
+## ⚖️ Ethical Safeguards & Privacy
+- **Human-in-the-Loop**: AI flags records; human auditors make the final "Approve" or "Delete" decision.
+- **Privacy Guard Mode**: Toggleable PII masking for public audits.
+- **Audit Logging**: Every action is serialized and logged for forensic review.
 
 ---
 
 ## 👥 Team: Algo Titans
+### Project Status: 🚀 Initial Implementation Complete & Pushed to GitHub
 
 **VEXORA-26 Hackathon**

@@ -129,6 +129,7 @@ def create_app():
             # DATABASE OPERATIONS
             # 1. Clear old records as requested (Clean Slate approach)
             Voter.query.delete()
+            db.session.commit() # Commit delete immediately to free up resources/locks
             
             # 2. Record this audit session
             session = AuditSession(
@@ -149,8 +150,11 @@ def create_app():
             
             # Get full details from dataframe for these IDs
             df = app.pipeline.df
-            for vid in flagged_voter_ids:
-                row = df[df['Voter_ID'] == vid].iloc[0]
+            # Optimize: filter dataframe once instead of searching for each ID
+            flagged_df = df[df['Voter_ID'].astype(str).isin(flagged_voter_ids)]
+            
+            for _, row in flagged_df.iterrows():
+                vid = str(row['Voter_ID'])
                 
                 # Determine risk type
                 is_ghost = vid in ghost_map
@@ -185,13 +189,13 @@ def create_app():
                 voter = Voter(
                     voter_id=vid,
                     name=f"{str(row.get('First_Name', ''))} {str(row.get('Last_Name', ''))}".strip(),
-                    age=0, # Calculate from DOB if needed
+                    age=int(row.get('Age', 0)) if pd.notna(row.get('Age')) else 0,
                     gender=str(row.get('Gender', 'Unknown')),
                     address=str(row.get('Address', 'Unknown')),
                     pincode=str(row.get('Pincode', '')),
-                    risk_score=confidence * 100,
+                    risk_score=float(confidence) * 100,
                     risk_type=r_type,
-                    risk_confidence=confidence,
+                    risk_confidence=float(confidence),
                     primary_reason=primary_reason,
                     contributing_factors=json.dumps(all_factors)
                 )
@@ -456,12 +460,7 @@ def create_app():
             'offset': offset,
             'logs': logs
         })
-    
-        return jsonify({
-            'status': 'success',
-            'data': app.detection_result.to_dict()
-        })
-    
+
     @app.route('/api/export/csv', methods=['GET'])
     def export_csv():
         """Export flagged dataset as CSV from database"""
