@@ -533,73 +533,70 @@ function App() {
   ]
 
   return (
-    <div className="dashboard-container">
-      {/* Sidebar */}
-      <aside className="sidebar">
-        <div className="sidebar-logo">
-          <span>VoteGuard</span>
+    <div className="app-container">
+      {/* Top Navigation Bar */}
+      <nav className="top-nav">
+        <div className="nav-brand">
+          <span className="nav-logo-icon">🗳️</span>
+          <span className="nav-logo">VoteGuard</span>
         </div>
 
-        <nav className="sidebar-nav">
-          <div className={`nav-item ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')}>
-            <span className="nav-icon">🏠</span>
-            <span>Dashboard</span>
+        <div className="nav-menu">
+          <div className={`nav-link ${currentView === 'dashboard' ? 'active' : ''}`} onClick={() => setCurrentView('dashboard')}>
+            🏠 Dashboard
           </div>
-          <div className={`nav-item ${currentView === 'records' ? 'active' : ''}`} onClick={() => setCurrentView('records')}>
-            <span className="nav-icon">📋</span>
-            <span>View Records</span>
+          <div className={`nav-link ${currentView === 'records' ? 'active' : ''}`} onClick={() => setCurrentView('records')}>
+            📋 Records
           </div>
-          <div className={`nav-item ${currentView === 'compliance' ? 'active' : ''}`} onClick={() => setCurrentView('compliance')}>
-            <span className="nav-icon">🛡️</span>
-            <span>Compliance</span>
+          <div className={`nav-link ${currentView === 'compliance' ? 'active' : ''}`} onClick={() => setCurrentView('compliance')}>
+            🛡️ Compliance
           </div>
-          <div className={`nav-item ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')}>
-            <span className="nav-icon">🔄</span>
-            <span>Records History</span>
+          <div className={`nav-link ${currentView === 'history' ? 'active' : ''}`} onClick={() => setCurrentView('history')}>
+            🔄 History
           </div>
-          <div className={`nav-item ${currentView === 'reviewed_ids' ? 'active' : ''}`} onClick={() => setCurrentView('reviewed_ids')}>
-            <span className="nav-icon">🆔</span>
-            <span>Reviewed IDs</span>
+          <div className={`nav-link ${currentView === 'reviewed_ids' ? 'active' : ''}`} onClick={() => setCurrentView('reviewed_ids')}>
+            🆔 Reviewed
           </div>
-          <div className={`nav-item ${currentView === 'rules' ? 'active' : ''}`} onClick={() => setCurrentView('rules')}>
-            <span className="nav-icon">📜</span>
-            <span>System Rules</span>
+          <div className={`nav-link ${currentView === 'rules' ? 'active' : ''}`} onClick={() => setCurrentView('rules')}>
+            📜 Rules
           </div>
-        </nav>
+        </div>
 
-        <div className="sidebar-footer">
-          <div className="user-profile">
-            <div className="user-avatar">{currentUser.initials}</div>
-            <div className="user-info">
-              <span className="user-name">{currentUser.name}</span>
-              <span className="user-role">{currentUser.role}</span>
+        <div className="nav-actions">
+          <div className="nav-user">
+            <div className="nav-avatar">{currentUser.initials}</div>
+            <div className="nav-user-info">
+              <div className="nav-user-name">{currentUser.name}</div>
+              <div className="nav-user-role">{currentUser.role}</div>
             </div>
           </div>
-          <div className="nav-item logout-btn" onClick={handleLogout} style={{ borderTop: 'none', paddingLeft: '1.5rem' }}>
-            <span>🚪 Logout</span>
-          </div>
+          <button className="btn-logout" onClick={handleLogout}>
+            🚪 Logout
+          </button>
         </div>
-      </aside>
+      </nav>
 
       {/* Main Content Area */}
       <main className="main-content">
         {/* Main Content conditionally rendered based on view */}
         {currentView === 'dashboard' && (
           <div className="dashboard-wrapper">
-            <header className="welcome-header">
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-                <div>
+            {/* Hero Section */}
+            <section className="hero-section">
+              <div className="hero-content">
+                <div className="hero-text">
                   <h1>Welcome, {currentUser.name.split(' ')[0]}!</h1>
-                  <p>Manage voter records, detect fraud, and maintain electoral integrity all in one place.</p>
+                  <p>Your comprehensive electoral integrity dashboard. Monitor, analyze, and maintain voter database security.</p>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <img src={logo} alt="VoteGuard Logo" style={{ height: '75px', objectFit: 'contain' }} />
+                <div className="hero-logo">
+                  <img src={logo} alt="VoteGuard Logo" />
                 </div>
               </div>
-            </header>
+            </section>
 
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '1.5rem', marginTop: '-1.5rem' }}>
-              <div className="privacy-toggle-container">
+            {/* Privacy Toggle - Top Right */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '2rem' }}>
+              <div className="privacy-toggle">
                 <span className="privacy-label">🛡️ Privacy Guard</span>
                 <label className="switch">
                   <input
@@ -607,7 +604,7 @@ function App() {
                     checked={privacyMode}
                     onChange={(e) => setPrivacyMode(e.target.checked)}
                   />
-                  <span className="slider round"></span>
+                  <span className="slider"></span>
                 </label>
                 <span className={`privacy-status ${privacyMode ? 'on' : 'off'}`}>
                   {privacyMode ? 'SECURE' : 'PUBLIC'}
@@ -615,16 +612,47 @@ function App() {
               </div>
             </div>
 
-            <div className="status-bar">
-              <span className="status-icon">🔊</span>
-              <span className="status-text">
-                {stats.analysis_status === 'completed'
-                  ? `Last audit completed. Found ${totalFlagged} suspicious records in ${stats.total_records} entries.`
-                  : 'System ready. No active announcements at this time.'}
-              </span>
+            {/* Stats Grid */}
+            <div className="stats-grid">
+              <div className="stat-card">
+                <div className="stat-header">
+                  <div className="stat-icon">🗳️</div>
+                </div>
+                <div className="stat-label">Total Voters</div>
+                <div className="stat-value">{stats.total_records.toLocaleString()}</div>
+                <div className="stat-change">Audited database</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-header">
+                  <div className="stat-icon" style={{ background: 'var(--gradient-fire)' }}>👻</div>
+                </div>
+                <div className="stat-label">Ghost Voters</div>
+                <div className="stat-value" style={{ color: 'var(--secondary)' }}>{stats.ghost_voters}</div>
+                <div className="stat-change">Flagged for review</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-header">
+                  <div className="stat-icon" style={{ background: 'var(--gradient-sunset)' }}>📋</div>
+                </div>
+                <div className="stat-label">Duplicates</div>
+                <div className="stat-value" style={{ color: 'var(--warning)' }}>{stats.duplicate_voters}</div>
+                <div className="stat-change">Potential duplicates</div>
+              </div>
+
+              <div className="stat-card">
+                <div className="stat-header">
+                  <div className="stat-icon" style={{ background: 'var(--gradient-forest)' }}>✓</div>
+                </div>
+                <div className="stat-label">Clean Records</div>
+                <div className="stat-value" style={{ color: 'var(--success)' }}>{cleanRecords}</div>
+                <div className="stat-change">Verified clean</div>
+              </div>
             </div>
 
-            <div className="quick-actions-row">
+            {/* Action Cards */}
+            <div className="actions-grid">
               <div className="action-card" onClick={() => document.getElementById('file-upload').click()}>
                 <span className="action-icon">📂</span>
                 <span className="action-label">Select File</span>
@@ -634,123 +662,129 @@ function App() {
                 <span className="action-label">View Records</span>
               </div>
               <div className="action-card" onClick={() => setCurrentView('history')}>
-                <span className="action-icon">📋</span>
-                <span>Records History</span>
+                <span className="action-icon">🔄</span>
+                <span className="action-label">History</span>
               </div>
               <div className="action-card" onClick={() => setCurrentView('compliance')}>
                 <span className="action-icon">🛡️</span>
-                <span>Security Compliance</span>
+                <span className="action-label">Compliance</span>
               </div>
             </div>
 
+            {/* Dashboard Grid */}
             <div className="dashboard-grid">
-              <section className="card-section">
-                <h2 className="section-title">🗳️ Detailed Metrics</h2>
-                <div className="metrics-container">
-                  <div className="metric-highlight">
-                    <span className="metric-label">TOTAL VOTERS</span>
-                    <span className="metric-value-large">{stats.total_records.toLocaleString()}</span>
-                    <span className="metric-status-tag">Audited</span>
+              {/* Left Column - Metrics & Charts */}
+              <div className="dashboard-card">
+                <h2 className="card-title">🗳️ Detailed Analytics</h2>
+
+                {/* Metrics Row */}
+                <div className="metrics-row">
+                  <div className="metric-main">
+                    <div className="metric-main-label">TOTAL VOTERS</div>
+                    <div className="metric-main-value">{stats.total_records.toLocaleString()}</div>
+                    <div className="metric-main-badge">Audited</div>
                   </div>
 
-                  <div className="stats-subgrid">
-                    <div className="mini-stat">
-                      <span className="mini-label">GHOSTS</span>
-                      <span className="mini-value" style={{ color: 'var(--ghost-color)' }}>{stats.ghost_voters}</span>
+                  <div className="metrics-mini-grid">
+                    <div className="mini-metric">
+                      <div className="mini-metric-label">Ghosts</div>
+                      <div className="mini-metric-value" style={{ color: 'var(--secondary)' }}>{stats.ghost_voters}</div>
                     </div>
-                    <div className="mini-stat">
-                      <span className="mini-label">DUPLICATES</span>
-                      <span className="mini-value" style={{ color: 'var(--duplicate-color)' }}>{stats.duplicate_voters}</span>
+                    <div className="mini-metric">
+                      <div className="mini-metric-label">Duplicates</div>
+                      <div className="mini-metric-value" style={{ color: 'var(--warning)' }}>{stats.duplicate_voters}</div>
                     </div>
-                    <div className="mini-stat">
-                      <span className="mini-label">CLEAN</span>
-                      <span className="mini-value" style={{ color: 'var(--clean-color)' }}>{cleanRecords}</span>
+                    <div className="mini-metric">
+                      <div className="mini-metric-label">Clean</div>
+                      <div className="mini-metric-value" style={{ color: 'var(--success)' }}>{cleanRecords}</div>
                     </div>
-                    <div className="mini-stat">
-                      <span className="mini-label">FLAGS</span>
-                      <span className="mini-value" style={{ color: 'var(--danger)' }}>{totalFlagged}</span>
+                    <div className="mini-metric">
+                      <div className="mini-metric-label">Flagged</div>
+                      <div className="mini-metric-value" style={{ color: 'var(--danger)' }}>{totalFlagged}</div>
                     </div>
                   </div>
-
-                  {stats.total_records > 0 && (
-                    <div className="charts-wrapper">
-                      <div className="chart-item">
-                        <h3 className="chart-label">Distribution</h3>
-                        <ResponsiveContainer width="100%" height={200}>
-                          <PieChart>
-                            <Pie
-                              data={chartData}
-                              cx="50%"
-                              cy="50%"
-                              innerRadius={40}
-                              outerRadius={60}
-                              paddingAngle={5}
-                              dataKey="value"
-                            >
-                              {chartData.map((entry, index) => (
-                                <Cell key={`cell-${index}`} fill={entry.color} />
-                              ))}
-                            </Pie>
-                            <Tooltip contentStyle={{ borderRadius: '8px' }} />
-                          </PieChart>
-                        </ResponsiveContainer>
-                      </div>
-                      <div className="chart-item">
-                        <h3 className="chart-label">Risk Level</h3>
-                        <ResponsiveContainer width="100%" height={200}>
-                          <BarChart data={riskData}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
-                            <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
-                            <YAxis hide />
-                            <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px' }} />
-                            <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={30} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
-
-                  {stats.risk_by_region && stats.risk_by_region.length > 0 && (
-                    <div className="heatmap-container">
-                      <div className="heatmap-header">
-                        <div className="heatmap-title">
-                          <span>🗺️ Geospatial Risk Heatmap</span>
-                        </div>
-                        <div className="heatmap-badge">Regional Intelligence</div>
-                      </div>
-                      <div className="heatmap-chart-wrapper">
-                        <ResponsiveContainer width="100%" height={Math.max(200, stats.risk_by_region.length * 40)}>
-                          <BarChart
-                            data={stats.risk_by_region}
-                            layout="vertical"
-                            margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                          >
-                            <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.1} />
-                            <XAxis type="number" hide />
-                            <YAxis
-                              dataKey="region"
-                              type="category"
-                              axisLine={false}
-                              tickLine={false}
-                              fontSize={11}
-                              width={100}
-                              tick={{ fontWeight: 600, fill: '#64748b' }}
-                            />
-                            <Tooltip
-                              cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
-                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
-                            />
-                            <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '11px' }} />
-                            <Bar dataKey="ghost" name="Ghost Risk" stackId="a" fill="#8b5cf6" radius={[0, 0, 0, 0]} barSize={20} />
-                            <Bar dataKey="duplicate" name="Duplicate Risk" stackId="a" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20} />
-                          </BarChart>
-                        </ResponsiveContainer>
-                      </div>
-                    </div>
-                  )}
                 </div>
 
-                <div className="upload-overlay">
+                {/* Charts */}
+                {stats.total_records > 0 && (
+                  <div className="charts-container">
+                    <div className="chart-wrapper">
+                      <h3 className="chart-title">Distribution</h3>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <PieChart>
+                          <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={40}
+                            outerRadius={60}
+                            paddingAngle={5}
+                            dataKey="value"
+                          >
+                            {chartData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip contentStyle={{ borderRadius: '8px' }} />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                    <div className="chart-wrapper">
+                      <h3 className="chart-title">Risk Level</h3>
+                      <ResponsiveContainer width="100%" height={200}>
+                        <BarChart data={riskData}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} opacity={0.1} />
+                          <XAxis dataKey="name" axisLine={false} tickLine={false} fontSize={12} />
+                          <YAxis hide />
+                          <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ borderRadius: '8px' }} />
+                          <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={30} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {stats.risk_by_region && stats.risk_by_region.length > 0 && (
+                  <div className="heatmap-container">
+                    <div className="heatmap-header">
+                      <div className="heatmap-title">
+                        <span>🗺️ Geospatial Risk Heatmap</span>
+                      </div>
+                      <div className="heatmap-badge">Regional Intelligence</div>
+                    </div>
+                    <div className="heatmap-chart-wrapper">
+                      <ResponsiveContainer width="100%" height={Math.max(200, stats.risk_by_region.length * 40)}>
+                        <BarChart
+                          data={stats.risk_by_region}
+                          layout="vertical"
+                          margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} opacity={0.1} />
+                          <XAxis type="number" hide />
+                          <YAxis
+                            dataKey="region"
+                            type="category"
+                            axisLine={false}
+                            tickLine={false}
+                            fontSize={11}
+                            width={100}
+                            tick={{ fontWeight: 600, fill: '#64748b' }}
+                          />
+                          <Tooltip
+                            cursor={{ fill: 'rgba(59, 130, 246, 0.05)' }}
+                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgba(0,0,0,0.1)' }}
+                          />
+                          <Legend wrapperStyle={{ paddingTop: '20px', fontSize: '11px' }} />
+                          <Bar dataKey="ghost" name="Ghost Risk" stackId="a" fill="#8b5cf6" radius={[0, 0, 0, 0]} barSize={20} />
+                          <Bar dataKey="duplicate" name="Duplicate Risk" stackId="a" fill="#f59e0b" radius={[0, 4, 4, 0]} barSize={20} />
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                )}
+
+                {/* Upload Section */}
+                <div className="upload-section">
                   <input
                     type="file"
                     id="file-upload"
@@ -767,43 +801,46 @@ function App() {
                   </button>
                   {message && <p className="message-box">{message}</p>}
                 </div>
-              </section>
+              </div>
 
-              <section className="risk-feed">
-                <h2 className="section-title">🛡️ Risk Assessment</h2>
-                <div className="risk-item">
-                  <div className="risk-info">
-                    <span className="risk-title">High Risk Records</span>
-                    <span className="risk-desc-mini">Both Ghost & Duplicate flags</span>
+              {/* Right Column - Risk Feed */}
+              <div className="dashboard-card">
+                <h2 className="card-title">🛡️ Risk Assessment</h2>
+                <div className="risk-feed">
+                  <div className="risk-item">
+                    <div className="risk-info">
+                      <div className="risk-title">High Risk Records</div>
+                      <div className="risk-desc">Both Ghost & Duplicate flags</div>
+                    </div>
+                    <div className="risk-badge high">{highRisk} Found</div>
                   </div>
-                  <span className="risk-tag high">{highRisk} Found</span>
-                </div>
-                <div className="risk-item">
-                  <div className="risk-info">
-                    <span className="risk-title">Medium Risk Records</span>
-                    <span className="risk-desc-mini">Single anomaly detected</span>
+                  <div className="risk-item">
+                    <div className="risk-info">
+                      <div className="risk-title">Medium Risk Records</div>
+                      <div className="risk-desc">Single anomaly detected</div>
+                    </div>
+                    <div className="risk-badge medium">{mediumRisk} Found</div>
                   </div>
-                  <span className="risk-tag medium">{mediumRisk} Found</span>
-                </div>
-                <div className="risk-item">
-                  <div className="risk-info">
-                    <span className="risk-title">Safe Records</span>
-                    <span className="risk-desc-mini">Verified clean registrations</span>
+                  <div className="risk-item">
+                    <div className="risk-info">
+                      <div className="risk-title">Safe Records</div>
+                      <div className="risk-desc">Verified clean registrations</div>
+                    </div>
+                    <div className="risk-badge low">{cleanRecords} Verified</div>
                   </div>
-                  <span className="risk-tag low">{cleanRecords} Verified</span>
-                </div>
-                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                  <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                    Last scan: {new Date().toLocaleDateString()}
-                  </p>
-                  <button className="btn-view-all" onClick={() => setCurrentView('records')}>
-                    View All Flagged Records →
-                  </button>
+                  <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                      Last scan: {new Date().toLocaleDateString()}
+                    </p>
+                    <button className="btn-primary" onClick={() => setCurrentView('records')} style={{ marginTop: '1rem', width: '100%' }}>
+                      View All Flagged Records →
+                    </button>
+                  </div>
                   <button className="btn-extract-report" onClick={() => handleExportCSV('audit')}>
                     📥 Download Audit Report
                   </button>
                 </div>
-              </section>
+              </div>
             </div>
           </div>
         )}
